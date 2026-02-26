@@ -35,12 +35,16 @@ public class GameEngine {
         // guess = 12345
         // combination = 54321
         // returner = 11211
-
+        currentGuesses++ ;
         for (int i = guess.size(); ) {
 
         }
 
 
+    }
+
+    public List<Integer> makeCombination(List<Integer> combination) {
+        setCombination(combination);
     }
 
 
