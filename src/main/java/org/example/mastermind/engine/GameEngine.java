@@ -3,7 +3,9 @@ package org.example.mastermind.engine;
 
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class GameEngine {
@@ -24,8 +26,16 @@ public class GameEngine {
         return amountOfGuesses;
     }
 
-    public void setCombination(List<Integer> combination) {
-        this.combination = combination;
+
+    public List<Integer> randomCombination(int size) {
+        List<Integer> randomCombi = new ArrayList<>();
+        Random random = new Random();
+
+        for (int i = 0; i < size; i++) {
+            randomCombi.add(random.nextInt(7));
+        }
+
+        return randomCombi;
     }
     public List<Integer> getCombination() {
         return combination;
@@ -44,24 +54,20 @@ public class GameEngine {
     }
 
     public List<Integer> makeCombination(List<Integer> combination) {
-        setCombination(combination);
+        this.combination = combination;
+        return combination;
+    }
+
+    public boolean resetGame() {
+        this.amountOfGuesses = 0;
+        this.currentGuesses = 0;
+        this.combination = null;
+        return true;
     }
 
 
 
-//    public List<Integer> getCombination() {
-//        return gameEngine.getCombination(); // random combi fra computer
-//    }
-//
-//    public List<Integer> makeGuess(List<Integer> guess) {
-//        return gameEngine.makeGuess(guess); // sammenligner guess me combination -- sender 1 0 0 1 0? tilbage?
-//    } // 1 1 1 1 1 vundet --> 00000 ingen rigtige.
-//
-//    public List<Integer> makeCombination(List<Integer> userCombination) {
-//        return gameEngine.makeCombination(); // sætter combination til det brugeren har defineret
-//    }
-//
-//    public boolean resetGame() {
-//        return gameEngine.resetGame(); // sætter combination til .empty
-//    }
+
+
+
 }

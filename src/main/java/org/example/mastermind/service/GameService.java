@@ -29,11 +29,22 @@ public class GameService {
     } // 1 1 1 1 1 vundet --> 00000 ingen rigtige. // 1 0 1 2  1 = correct colour but wrong place 2 = right colour right place 0 = not correct
 
     public List<Integer> makeCombination(List<Integer> userCombination) {
-        return gameEngine.makeCombination(); // sætter combination til det brugeren har defineret
+        return gameEngine.makeCombination(userCombination); // sætter combination til det brugeren har defineret
+    }
+    public List<Integer> randomeCombination(int size) {
+        return gameEngine.randomCombination(size);
     }
 
     public boolean resetGame() {
         return gameEngine.resetGame(); // sætter combination til .empty
+    }
+
+    public int getAmountOfGuesses() {
+        return gameEngine.getAmountOfGuesses();
+    }
+
+    public void setAmountOfGuesses(int guesses) {
+        gameEngine.setGuesses(guesses);
     }
 
 
