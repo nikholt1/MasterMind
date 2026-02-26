@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mastermind</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .color-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .guess-slot {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ddd;
+            margin: 5px;
+        }
+
+        .peg {
+            display: inline-block;
+            padding: 6px 10px;
+            margin: 3px;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .correct { background: green; }
+        .color { background: orange; }
+        .wrong { background: gray; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Mastermind</h1>
+
+    <h3>Start Game</h3>
+    <input id="maxGuesses" type="number" value="10">
+    <input id="codeLength" type="number" value="4">
+    <input id="colorRange" type="number" value="8">
+    <button onclick="startGame()">Start</button>
+
+    <hr>
+
+    <h3>Your Guess</h3>
+    <div id="guessSlots"></div>
+
+    <h4>Pick colors</h4>
+    <div id="colorButtons"></div>
+
+    <button onclick="submitGuess()">Submit Guess</button>
+
+    <hr>
+
+    <p><strong>Game State:</strong> <span id="gameState">-</span></p>
+    <p><strong>Remaining Guesses:</strong> <span id="remainingGuesses">-</span></p>
+    <div id="pegResults"></div>
+</div>
+
+<script>
+    const API_URL = "/api/game";
+
+    const colors = [
+        { name: "Red", value: 0, css: "red" },
+        { name: "Blue", value: 1, css: "blue" },
+        { name: "Green", value: 2, css: "green" },
+        { name: "Yellow", value: 3, css: "yellow" },
+        { name: "Orange", value: 4, css: "orange" },
+        { name: "Purple", value: 5, css: "purple" },
+        { name: "Black", value: 6, css: "black" },
+        { name: "White", value: 7, css: "white" }
+    ];
+
+    let currentGuess = [];
+
+    function startGame() {
+        fetch(API_URL + "/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                maxGuesses: 10,
+                codeLength: 4,
+                colorRange: 8
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                currentGuess = [];
+                updateGuessSlots();
+                document.getElementById("gameState").innerText = data.gameState;
+                document.getElementById("remainingGuesses").innerText = "10";
+                document.getElementById("pegResults").innerHTML = "";
+            });
+    }
+
+    function addColor(color) {
+        if (currentGuess.length < 4) {
+            currentGuess.push(color);
+            updateGuessSlots();
+        }
+    }
+
+    function updateGuessSlots() {
+        const slots = document.getElementById("guessSlots");
+        slots.innerHTML = "";
+
+        for (let i = 0; i < 4; i++) {
+            const div = document.createElement("div");
+            div.className = "guess-slot";
+
+            if (currentGuess[i]) {
+                div.style.background = currentGuess[i].css;
+            }
+
+            slots.appendChild(div);
+        }
+    }
+
+    function submitGuess() {
+        if (currentGuess.length !== 4) {
+            alert("Pick 4 colors");
+            return;
+        }
+
+        const guessValues = currentGuess.map(c => c.value);
+
+        fetch(API_URL + "/guess", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(guessValues)
+        })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("gameState").innerText = data.gameState;
+                document.getElementById("remainingGuesses").innerText = data.remainingGuesses;
+
+                const pegDiv = document.getElementById("pegResults");
+                pegDiv.innerHTML = "";
+
+                data.pegResults.forEach(r => {
+                    const span = document.createElement("span");
+                    span.className = "peg";
+
+                    if (r === "CORRECT_POSITION_AND_COLOR") {
+                        span.classList.add("correct");
+                        span.innerText = "Correct";
+                    } else if (r === "CORRECT_COLOR") {
+                        span.classList.add("color");
+                        span.innerText = "Color";
+                    } else {
+                        span.classList.add("wrong");
+                        span.innerText = "Wrong";
+                    }
+
+                    pegDiv.appendChild(span);
+                });
+
+                currentGuess = [];
+                updateGuessSlots();
+            });
+    }
+
+    // Create color buttons
+    const colorButtons = document.getElementById("colorButtons");
+    colors.forEach(color => {
+        const btn = document.createElement("button");
+        btn.className = "color-btn";
+        btn.style.background = color.css;
+        btn.onclick = () => addColor(color);
+        colorButtons.appendChild(btn);
+    });
+</script>
+
+</body>
+</html>
